@@ -1,0 +1,47 @@
+---
+# See: https://github.com/redpanda-data/console/blob/master/docs/config/console.yaml
+# for reference config files.
+kafka:
+  brokers:
+{% for host,ip in broker_hosts.items() %}
+    - {{ host }}:9092
+{% endfor %}
+
+  schemaRegistry:
+    enabled: true
+    # urls: [] # Url with scheme is required, e.g. ["http://localhost:8081"]
+    urls:
+{% for host,ip in schema_registry_hosts.items() %}
+      - http://sr-{{ loop.index }}:8081
+{% endfor %}
+    # username: # Basic auth username
+    # password: # Basic auth password
+    # bearerToken:
+    # tls:
+    #   enabled: false # Enable Client certificate connexion to the schemaRegistry
+    #   caFilepath: # Path to a custom CA file. If not specified the system's / trusted root ca is used.
+    #   certFilepath:
+    #   keyFilepath:  # key should not be encrypted by a passphrase
+    #   insecureSkipTlsVerify: false
+
+connect:
+  enabled: true
+  # set only the first host of the connect cluster
+  clusters:
+{% for host in adapter_producer_hosts %}
+    - name: producer
+      url: http://{{ host }}:8083
+{% endfor -%}
+{% for host in adapter_consumer_hosts %}
+    - name: consumer
+      url: http://{{ host }}:8083
+{% endfor %}
+
+# logger:
+#   level: debug
+
+server:
+  listenPort: 8080
+
+analytics:
+  enabled: false

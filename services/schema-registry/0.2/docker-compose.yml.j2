@@ -1,0 +1,47 @@
+---
+version: '2'
+
+# Schema-registry service
+# =======================
+services:
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.3
+    volumes:
+      - "{{ ssl_path | default('/opt/ssl') }}":/sr/ssl
+    ports:
+      - 8081:8081
+      - 8082:8082
+    environment:
+      SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: 'https'
+      SCHEMA_REGISTRY_SSL_ENABLED_PROTOCOLS: 'TLSv1.2'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: '{{ kafka_bootstrap_servers }}'
+      SCHEMA_REGISTRY_HOST_NAME: 'schema-registry'
+      SCHEMA_REGISTRY_LISTENERS: >-
+        {% set sr_list -%}
+          {% for host in schema_registry_hosts -%}
+          http://sr-{{ loop.index }}:8081,https://sr-{{ loop.index }}:8082
+            {%- if loop.nextitem is defined and loop.index < loop.length -%}
+            ,
+            {%- endif -%}
+          {%- endfor %}
+        {%- endset -%}
+        {{ sr_list }}
+      # https connections
+      SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION: '{{ schema_registry_truststore_location | default("/sr/ssl/server.truststore") }}'
+      SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD: '{{ schema_registry_truststore_password }}'
+      SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION: '{{ schema_registry_keystore_location | default("/sr/ssl/server.keystore") }}'
+      SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD: '{{ schema_registry_keystore_password }}'
+      SCHEMA_REGISTRY_SSL_KEY_PASSWORD: '{{ schema_registry_ssl_key_password }}'
+      # kafka connections
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_LOCATION: '{{ schema_registry_kafkastore_truststore_location | default("/sr/ssl/kafka.truststore") }}'
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_PASSWORD: '{{ schema_registry_kafkastore_truststore_password }}'
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_LOCATION: '{{ schema_registry_kafkastore_keystore_location | default("/sr/ssl/kafka.keystore")}}'
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_PASSWORD: '{{ schema_registry_kafkastore_keystore_password }}'
+      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEY_PASSWORD: '{{ schema_registry_kafkastore_ssl_key_password }}'
+    extra_hosts:
+{% for host,ip in schema_registry_hosts.items() %}
+      - "sr-{{ loop.index }}:{{ ip }}"
+{% endfor -%}
+{% for host,ip in broker_hosts.items() %}
+      - "{{ host }}:{{ ip }}"
+{% endfor %}

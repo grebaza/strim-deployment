@@ -1,0 +1,47 @@
+---
+version: '2'
+
+# Kafka-connect Service
+# =====================
+services:
+  connect:
+    image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}connect:3.6'
+    ports:
+      - 8083:8083
+      - 5005:5005
+    volumes:
+      - {{ ssl_path | default('/opt/ssl') }}:/kafka/ssl
+      - ./.secrets:/secrets
+      - /data/connect-logs:/kafka/logs
+    environment:
+      GROUP_ID: '{{ connect_group_id }}'
+      BOOTSTRAP_SERVERS: '{{ kafka_bootstrap_servers }}'
+      CONFIG_STORAGE_TOPIC: '{{ connect_connector_topic_prefix }}_configs'
+      OFFSET_STORAGE_TOPIC: '{{ connect_connector_topic_prefix }}_offsets'
+      STATUS_STORAGE_TOPIC: '{{ connect_connector_topic_prefix }}_statuses'
+      KEY_CONVERTER: '{{ connect_key_converter | default("io.confluent.connect.avro.AvroConverter") }}'
+      VALUE_CONVERTER: '{{ connect_value_converter | default("io.confluent.connect.avro.AvroConverter") }}'
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: >-
+        {% set sr_list -%}
+          {% for host in schema_registries_hosts -%}
+          http://sr-{{ loop.index }}:8081
+            {%- if loop.nextitem is defined and loop.index < loop.length -%}
+            ,
+            {%- endif -%}
+          {%- endfor %}
+        {%- endset -%}
+        {{ sr_list }}
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: >-
+        {{ sr_list }}
+      CONNECT_MAX_REQUEST_SIZE: 2097152
+      CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: All
+      CONNECT_CONFIG_PROVIDERS: file
+      CONNECT_CONFIG_PROVIDERS_FILE_CLASS: >-
+        org.apache.kafka.common.config.provider.FileConfigProvider
+    extra_hosts:
+{% for host,ip in schema_registry_hosts.items() %}
+      - "sr-{{ loop.index }}:{{ ip }}"
+{% endfor -%}
+{% for host,ip in broker_hosts.items() %}
+      - "{{ host }}:{{ ip }}"
+{% endfor %}

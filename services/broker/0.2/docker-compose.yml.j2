@@ -1,0 +1,62 @@
+---
+version: '2'
+# TODO: adjust for Kraft
+
+# Kafka service
+# =============
+services:
+  kafka:
+    image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}kafka:3.6'
+    volumes:
+      - {{ ssl_path | default('/opt/ssl') }}:/kafka/ssl
+      - ./config:/kafka/config
+      - /data/kafka-data:/kafka/data
+      - /data/kafka-logs:/kafka/logs
+    ports:
+      - 9092:9092
+      - 9093:9093
+      - 9094:9094
+    environment:
+      BROKER_ID: {{ kafka_id }}
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      ZOOKEEPER_CONNECT: '{{ zookeeper_hosts.values() | join(":2181,") }}{{ ":2181" if zookeeper_hosts }}'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      LISTENERS: >-
+        INTERNAL://0.0.0.0:9092,
+        EXTERNAL://0.0.0.0:9093
+      {% if ansible_ec2_public_ipv4 is defined -%}
+      ADVERTISED_LISTENERS: >-
+        INTERNAL://{{ ansible_default_ipv4.address }}:9092,
+        EXTERNAL://{{ ansible_ec2_public_ipv4 }}:9093
+      {% elif ipv4_address is defined -%}
+      ADVERTISED_LISTENERS: >-
+        INTERNAL://{{ ansible_default_ipv4.address }}:9092
+        EXTERNAL://{{ ipv4_address }}:9093
+      {% else -%}
+      ADVERTISED_LISTENERS: 'INTERNAL://{{ ansible_default_ipv4.address }}:9092'
+      {% endif -%}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:SSL'
+      KAFKA_LOG_RETENTION_HOURS: 4320
+      KAFKA_SSL_ENABLED_PROTOCOLS: 'TLSv1.3,TLSv1.2'
+      KAFKA_SSL_CLIENT_AUTH: 'required'
+      KAFKA_SSL_TRUSTSTORE_LOCATION: '{{ kafka_truststore_location | default("/kafka/ssl/server.truststore") }}'
+      KAFKA_SSL_TRUSTSTORE_PASSWORD: '{{ kafka_truststore_password }}'
+      KAFKA_SSL_KEYSTORE_LOCATION: '{{ kafka_keystore_location | default("/kafka/ssl/server.keystore") }}'
+      KAFKA_SSL_KEYSTORE_PASSWORD: '{{ kafka_keystore_password }}'
+      KAFKA_SSL_KEY_PASSWORD: '{{ kafka_ssl_key_password }}'
+      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.authorizer.AclAuthorizer'
+      KAFKA_SUPER_USERS: >-
+        {% set super_list -%}
+        User:ANONYMOUS;
+          {%- for host in (broker_hosts.keys()|list + adapter_producer_hosts.keys()|list + adapter_consumer_hosts.keys()|list) -%}
+          User:{{ host }}{% if not loop.last %};{% endif %}
+          {%- endfor %}
+        {%- endset -%}
+        {{ super_list }}
+      KAFKA_SSL_PRINCIPAL_MAPPING_RULES: >-
+        RULE:^.*[Cc][Nn]=([a-zA-Z0-9\-.]*).*$$/$$1/L,DEFAULT
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'false'
+    extra_hosts:
+{% for host,ip in broker_hosts.items() | selectattr(0, 'ne', ansible_hostname) %}
+      - "{{ host }}:{{ ip }}"
+{% endfor %}

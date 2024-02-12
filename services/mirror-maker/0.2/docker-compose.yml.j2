@@ -1,0 +1,30 @@
+version: '2'
+
+# MirrorMaker service
+# ===================
+services:
+  mirrormaker:
+    image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}mirror-maker:3.6'
+    volumes:
+      - {{ ssl_path | default('/opt/ssl') }}:/kafka/ssl
+      - /data/mirrormaker-logs:/kafka/logs
+    environment:
+      KMM_AUTO_OFFSET_RESET: 'earliest'
+      KMM_REPLICATION_FACTOR: '2'
+      KMM_CHECKPOINTS_TOPIC_REPLICATION_FACTOR: '2'
+      KMM_HEARTBEATS_TOPIC_REPLICATION_FACTOR: '2'
+      KMM_OFFSET-SYNCS_TOPIC_REPLICATION_FACTOR: '2'
+      KMM_OFFSET_STORAGE_REPLICATION_FACTOR: '2'
+      KMM_STATUS_STORAGE_REPLICATION_FACTOR: '2'
+      KMM_CONFIG_STORAGE_REPLICATION_FACTOR: '2'
+      KMM_CLUSTERS: 'prod,dev'
+      KMM_PROD->DEV_ENABLED: 'true'
+      KMM_PROD->DEV_TOPICS: '{{ prod_to_dev_topics }}'
+      KMM_PROD_BOOTSTRAP_SERVERS: '{{ prod_kafka_bootstrap_servers }}'
+      KMM_DEV_BOOTSTRAP_SERVERS: '{{ dev_kafka_bootstrap_servers }}'
+      KMM_PROD_SECURITY_PROTOCOL: 'SSL'
+      KMM_PROD_SSL_TRUSTSTORE_LOCATION: '{{ prod_kafka_truststore_location | default("/kafka/ssl/client.truststore") }}'
+      KMM_PROD_SSL_TRUSTSTORE_PASSWORD: '{{ prod_kafka_truststore_password }}'
+      KMM_PROD_SSL_KEYSTORE_LOCATION: '{{ prod_kafka_keystore_location | default("/kafka/ssl/client.keystore") }}'
+      KMM_PROD_SSL_KEYSTORE_PASSWORD: '{{ prod_kafka_keystore_password }}'
+      KMM_PROD_SSL_KEY_PASSWORD: '{{ prod_kafka_ssl_key_password }}'

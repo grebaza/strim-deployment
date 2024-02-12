@@ -1,0 +1,21 @@
+---
+# Broker console
+# ==============
+version: '2.1'
+
+services:
+  console:
+    image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}console:3.6'
+    entrypoint: /bin/sh
+    command: -c "[ -e kowl ] && ln -s kowl console; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+    volumes:
+      - ./config.yml:/tmp/config.yml
+    extra_hosts:
+{% for host,ip in (broker_hosts.items()|list + adapter_producer_hosts.items()|list + adapter_consumer_hosts.items()|list) %}
+      - "{{ host }}:{{ ip }}"
+{% endfor %}
+{% for host,ip in schema_registry_hosts.items() %}
+      - "sr-{{ loop.index }}:{{ ip }}"
+{% endfor -%}
