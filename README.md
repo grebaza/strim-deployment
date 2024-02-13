@@ -17,6 +17,24 @@ Schema Registry are aliased, following the pattern `sr-{node number}`. Broker's
 `extra_host` keys don't include the same broker's hostname to avoid network
 redirection by Docker.
 
+## Setup diagram
+```mermaid
+flowchart LR
+    CM[[configuration\nmanagement]] -->|setups by pushing\nDocker Compose| Host(cloud\nnode)
+    GA(Github\nActions) -->|pulls from| CM
+    CM -->|uses| SD[[strim\ndeployment]]
+    SD -->|mentions| SC[[strim\ncontainers]]
+    SC -->|pushes into| DH(Docker\nHub)
+    SI[[strim\ninfrastructure]] -->|send creation\ncommands| CV
+    subgraph vendors
+        GA -->|checkout into| Host
+        CV(Cloud\nVendor) -->|creates| Host
+        Host -->|pulls from| DH
+    end
+    CM -.->|sync\nresource sizes| SI
+    CM -->|uses| PN[[push\nnotification]]
+```
+
 ## Service commands
 
 ### Kafka Connect Api endpoints
