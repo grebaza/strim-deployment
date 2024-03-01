@@ -23,7 +23,7 @@ services:
       VALUE_CONVERTER: '{{ connect_value_converter | default("io.confluent.connect.avro.AvroConverter") }}'
       CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: >-
         {% set sr_list -%}
-          {% for host in schema_registries_hosts -%}
+          {% for host in schema_registry_hosts -%}
           http://sr-{{ loop.index }}:8081
             {%- if loop.nextitem is defined and loop.index < loop.length -%}
             ,
