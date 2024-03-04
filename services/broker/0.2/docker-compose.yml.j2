@@ -16,15 +16,15 @@ services:
       - 9093:9093
       - 9094:9094
     environment:
-      CLUSTER_ID: {{ kafka_cluster_id }}
+      CLUSTER_ID: '{{ kafka_cluster_id }}'
       NODE_ID: {{ kafka_id }}
       NODE_ROLE: 'combined'
       KAFKA_CONTROLLER_QUORUM_VOTERS: >-
 {% for host in broker_hosts.keys() %}
-        hostvars[{{ host }}]['kafka_id']@{{ host }}:9093
-        {%- if loop.nextitem is defined and loop.index < loop.length -%}
+        {{ hostvars[host]['kafka_id'] }}@{{ host }}:9093
+    {%- if loop.nextitem is defined and loop.index < loop.length -%}
         ,
-        {%- endif -%}
+    {%- endif -%}
 {% endfor %}
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SSL'
