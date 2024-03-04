@@ -22,7 +22,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: >-
         {% set ctrl_list -%}
           {% for host in broker_hosts.keys() -%}
-            {{ xhostvars[host]['kafka_id'] }}@{{ host }}:9093
+            {{ hostvars[host]['kafka_id'] }}@{{ host }}:9093
           {%- if loop.nextitem is defined and loop.index < loop.length -%}
           ,
           {%- endif -%}
