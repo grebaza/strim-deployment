@@ -40,15 +40,12 @@ services:
       KAFKA_ADVERTISED_LISTENERS: >-
         {% set ad_list -%}
           {%- if ansible_ec2_public_ipv4 is defined -%}
-        CONTROLLER://0.0.0.:9093,
         INTERNAL://{{ ansible_default_ipv4.address }}:9092,
         EXTERNAL://{{ ansible_ec2_public_ipv4 }}:9094
           {%- elif ipv4_address is defined -%}
-        CONTROLLER://0.0.0.:9093,
         INTERNAL://{{ ansible_default_ipv4.address }}:9092,
         EXTERNAL://{{ ipv4_address }}:9094
           {%- else -%}
-        CONTROLLER://0.0.0.:9093,
         INTERNAL://{{ ansible_default_ipv4.address }}:9092
           {%- endif -%}
         {%- endset -%}
