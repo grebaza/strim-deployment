@@ -5,7 +5,7 @@ version: '2.1'
 
 services:
   console:
-    image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}console:3.6'
+    image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}console:1.5.0'
     entrypoint: /bin/sh
     command: -c "[ -e kowl ] && ln -s kowl console; /app/console"
     environment:
