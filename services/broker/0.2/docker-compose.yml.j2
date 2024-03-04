@@ -33,18 +33,13 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SSL'
       KAFKA_DELETE_TOPIC_ENABLE: 'true'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
-      KAFKA_LISTENERS:
-        CONTROLLER://0.0.0.:9093,
-        INTERNAL://0.0.0.0:9092,
-        EXTERNAL://0.0.0.0:9094
+      KAFKA_LISTENERS: 'CONTROLLER://0.0.0.:9093,INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9094'
       KAFKA_ADVERTISED_LISTENERS: >-
         {% set ad_list -%}
           {%- if ansible_ec2_public_ipv4 is defined -%}
-        INTERNAL://{{ ansible_default_ipv4.address }}:9092,
-        EXTERNAL://{{ ansible_ec2_public_ipv4 }}:9094
+        INTERNAL://{{ ansible_default_ipv4.address }}:9092,EXTERNAL://{{ ansible_ec2_public_ipv4 }}:9094
           {%- elif ipv4_address is defined -%}
-        INTERNAL://{{ ansible_default_ipv4.address }}:9092,
-        EXTERNAL://{{ ipv4_address }}:9094
+        INTERNAL://{{ ansible_default_ipv4.address }}:9092,EXTERNAL://{{ ipv4_address }}:9094
           {%- else -%}
         INTERNAL://{{ ansible_default_ipv4.address }}:9092
           {%- endif -%}
