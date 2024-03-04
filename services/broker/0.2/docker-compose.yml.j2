@@ -3,6 +3,7 @@ version: '2'
 
 # Kafka service
 # =============
+# TODO: deploy SSL artifacts
 services:
   kafka:
     image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}kafka:3.6'
@@ -46,13 +47,13 @@ services:
         {%- endset -%}
         {{ ad_list }}
       KAFKA_LOG_RETENTION_HOURS: 4320
-      KAFKA_SSL_ENABLED_PROTOCOLS: 'TLSv1.3,TLSv1.2'
-      KAFKA_SSL_CLIENT_AUTH: 'required'
-      KAFKA_SSL_TRUSTSTORE_LOCATION: '{{ kafka_truststore_location | default("/kafka/ssl/server.truststore") }}'
-      KAFKA_SSL_TRUSTSTORE_PASSWORD: '{{ kafka_truststore_password }}'
-      KAFKA_SSL_KEYSTORE_LOCATION: '{{ kafka_keystore_location | default("/kafka/ssl/server.keystore") }}'
-      KAFKA_SSL_KEYSTORE_PASSWORD: '{{ kafka_keystore_password }}'
-      KAFKA_SSL_KEY_PASSWORD: '{{ kafka_ssl_key_password }}'
+      # KAFKA_SSL_ENABLED_PROTOCOLS: 'TLSv1.3,TLSv1.2'
+      # KAFKA_SSL_CLIENT_AUTH: 'required'
+      # KAFKA_SSL_TRUSTSTORE_LOCATION: '{{ kafka_truststore_location | default("/kafka/ssl/server.truststore") }}'
+      # KAFKA_SSL_TRUSTSTORE_PASSWORD: '{{ kafka_truststore_password }}'
+      # KAFKA_SSL_KEYSTORE_LOCATION: '{{ kafka_keystore_location | default("/kafka/ssl/server.keystore") }}'
+      # KAFKA_SSL_KEYSTORE_PASSWORD: '{{ kafka_keystore_password }}'
+      # KAFKA_SSL_KEY_PASSWORD: '{{ kafka_ssl_key_password }}'
       KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       KAFKA_SUPER_USERS: >-
         {% set super_list -%}
@@ -62,8 +63,8 @@ services:
           {%- endfor %}
         {%- endset -%}
         {{ super_list }}
-      KAFKA_SSL_PRINCIPAL_MAPPING_RULES: >-
-        RULE:^.*[Cc][Nn]=([a-zA-Z0-9\-.]*).*$$/$$1/L,DEFAULT
+      # KAFKA_SSL_PRINCIPAL_MAPPING_RULES: >-
+      #   RULE:^.*[Cc][Nn]=([a-zA-Z0-9\-.]*).*$$/$$1/L,DEFAULT
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: 'false'
     extra_hosts:
 {% for host,ip in broker_hosts.items() | selectattr(0, 'ne', ansible_hostname) %}
