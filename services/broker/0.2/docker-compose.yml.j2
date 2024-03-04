@@ -20,34 +20,36 @@ services:
       NODE_ID: {{ kafka_id }}
       NODE_ROLE: 'combined'
       KAFKA_CONTROLLER_QUORUM_VOTERS: >-
-{% for host in broker_hosts.keys() %}
-        {{ hostvars[host]['kafka_id'] }}@{{ host }}:9093
-    {%- if loop.nextitem is defined and loop.index < loop.length -%}
-        ,
-    {%- endif -%}
-{% endfor %}
+        {% set ctrl_list -%}
+          {% for host in broker_hosts.keys() -%}
+            {{ xhostvars[host]['kafka_id'] }}@{{ host }}:9093
+          {%- if loop.nextitem is defined and loop.index < loop.length -%}
+          ,
+          {%- endif -%}
+          {%- endfor %}
+        {%- endset -%}
+        {{ ctrl_list }}
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SSL'
-
       KAFKA_DELETE_TOPIC_ENABLE: 'true'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
       LISTENERS: >-
-        CONTROLLER://0.0.0.:9093
+        CONTROLLER://0.0.0.:9093,
         INTERNAL://0.0.0.0:9092,
         EXTERNAL://0.0.0.0:9094
       {% if ansible_ec2_public_ipv4 is defined -%}
       ADVERTISED_LISTENERS: >-
-        CONTROLLER://0.0.0.:9093
+        CONTROLLER://0.0.0.:9093,
         INTERNAL://{{ ansible_default_ipv4.address }}:9092,
         EXTERNAL://{{ ansible_ec2_public_ipv4 }}:9094
       {% elif ipv4_address is defined -%}
       ADVERTISED_LISTENERS: >-
-        CONTROLLER://0.0.0.:9093
-        INTERNAL://{{ ansible_default_ipv4.address }}:9092
+        CONTROLLER://0.0.0.:9093,
+        INTERNAL://{{ ansible_default_ipv4.address }}:9092,
         EXTERNAL://{{ ipv4_address }}:9094
       {% else -%}
       ADVERTISED_LISTENERS: >-
-        CONTROLLER://0.0.0.:9093
+        CONTROLLER://0.0.0.:9093,
         INTERNAL://{{ ansible_default_ipv4.address }}:9092
       {% endif -%}
       KAFKA_LOG_RETENTION_HOURS: 4320
