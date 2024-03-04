@@ -33,7 +33,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SSL'
       KAFKA_DELETE_TOPIC_ENABLE: 'true'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
-      KAFKA_LISTENERS: >-
+      KAFKA_LISTENERS:
         CONTROLLER://0.0.0.:9093,
         INTERNAL://0.0.0.0:9092,
         EXTERNAL://0.0.0.0:9094
@@ -58,7 +58,7 @@ services:
       KAFKA_SSL_KEYSTORE_LOCATION: '{{ kafka_keystore_location | default("/kafka/ssl/server.keystore") }}'
       KAFKA_SSL_KEYSTORE_PASSWORD: '{{ kafka_keystore_password }}'
       KAFKA_SSL_KEY_PASSWORD: '{{ kafka_ssl_key_password }}'
-      KAFKA_AUTHORIZER_CLASS_NAME: 'kafka.security.authorizer.AclAuthorizer'
+      KAFKA_AUTHORIZER_CLASS_NAME: 'org.apache.kafka.metadata.authorizer.StandardAuthorizer'
       KAFKA_SUPER_USERS: >-
         {% set super_list -%}
         User:ANONYMOUS;
