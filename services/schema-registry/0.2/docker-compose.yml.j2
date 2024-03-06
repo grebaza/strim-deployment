@@ -27,17 +27,17 @@ services:
         {%- endset -%}
         {{ sr_list }}
       # https connections
-      SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION: '{{ schema_registry_truststore_location | default("/sr/ssl/server.truststore") }}'
-      SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD: '{{ schema_registry_truststore_password }}'
-      SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION: '{{ schema_registry_keystore_location | default("/sr/ssl/server.keystore") }}'
-      SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD: '{{ schema_registry_keystore_password }}'
-      SCHEMA_REGISTRY_SSL_KEY_PASSWORD: '{{ schema_registry_ssl_key_password }}'
+      # SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION: '{{ schema_registry_truststore_location | default("/sr/ssl/server.truststore") }}'
+      # SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD: '{{ schema_registry_truststore_password }}'
+      # SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION: '{{ schema_registry_keystore_location | default("/sr/ssl/server.keystore") }}'
+      # SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD: '{{ schema_registry_keystore_password }}'
+      # SCHEMA_REGISTRY_SSL_KEY_PASSWORD: '{{ schema_registry_ssl_key_password }}'
       # kafka connections
-      SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_LOCATION: '{{ schema_registry_kafkastore_truststore_location | default("/sr/ssl/kafka.truststore") }}'
-      SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_PASSWORD: '{{ schema_registry_kafkastore_truststore_password }}'
-      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_LOCATION: '{{ schema_registry_kafkastore_keystore_location | default("/sr/ssl/kafka.keystore")}}'
-      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_PASSWORD: '{{ schema_registry_kafkastore_keystore_password }}'
-      SCHEMA_REGISTRY_KAFKASTORE_SSL_KEY_PASSWORD: '{{ schema_registry_kafkastore_ssl_key_password }}'
+      # SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_LOCATION: '{{ schema_registry_kafkastore_truststore_location | default("/sr/ssl/kafka.truststore") }}'
+      # SCHEMA_REGISTRY_KAFKASTORE_SSL_TRUSTSTORE_PASSWORD: '{{ schema_registry_kafkastore_truststore_password }}'
+      # SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_LOCATION: '{{ schema_registry_kafkastore_keystore_location | default("/sr/ssl/kafka.keystore")}}'
+      # SCHEMA_REGISTRY_KAFKASTORE_SSL_KEYSTORE_PASSWORD: '{{ schema_registry_kafkastore_keystore_password }}'
+      # SCHEMA_REGISTRY_KAFKASTORE_SSL_KEY_PASSWORD: '{{ schema_registry_kafkastore_ssl_key_password }}'
     extra_hosts:
 {% for host,ip in schema_registry_hosts.items() %}
       - "sr-{{ loop.index }}:{{ ip }}"
