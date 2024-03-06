@@ -19,7 +19,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: >-
         {% set sr_list -%}
           {% for host in schema_registry_hosts -%}
-          http://sr-{{ loop.index }}:8081,https://sr-{{ loop.index }}:8082
+          http://0.0.0.0:8081,https://0.0.0.0:8082
             {%- if loop.nextitem is defined and loop.index < loop.length -%}
             ,
             {%- endif -%}
