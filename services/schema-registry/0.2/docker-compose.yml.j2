@@ -7,7 +7,7 @@ services:
   schema-registry:
     image: confluentinc/cp-schema-registry:7.5.3
     volumes:
-      - "{{ ssl_path | default('/opt/ssl') }}":/sr/ssl
+      - "{{ ssl_path | default('/opt/ssl') + ':/kafka/ssl' }}"
     ports:
       - 8081:8081
       - 8082:8082

@@ -7,7 +7,7 @@ services:
   kafka:
     image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}kafka:3.6'
     volumes:
-      - "{{ ssl_path | default('/opt/ssl') }}":/kafka/ssl
+      - "{{ ssl_path | default('/opt/ssl') + ':/kafka/ssl' }}"
       - ./config:/kafka/config
       - /data/kafka-data:/kafka/data
       - /data/kafka-logs:/kafka/logs

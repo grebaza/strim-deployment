@@ -6,7 +6,7 @@ services:
   mirrormaker:
     image: '{{ (docker_registry_primary_name + "/") if docker_registry_primary_name }}mirror-maker:3.6'
     volumes:
-      - "{{ ssl_path | default('/opt/ssl') }}":/kafka/ssl
+      - "{{ ssl_path | default('/opt/ssl') + ':/kafka/ssl' }}"
       - /data/mirrormaker-logs:/kafka/logs
     environment:
       KMM_AUTO_OFFSET_RESET: 'earliest'
